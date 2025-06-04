@@ -302,7 +302,7 @@ polis-server-skeleton/
 │   │   │           └── StudentServiceImpl.java
 │   │   └── resources/
 │   │       ├── application.properties
-│   │       └── (other resources…)
+│   │       └── (other resources )
 │   └── test/
 │       └── java/                             # (Optional) Unit tests
 │
@@ -432,15 +432,14 @@ Below is a consolidated list of all available endpoints with URI, HTTP method, r
           "teacher": null,
           "students": []
         },
-        …
       ],
-      "pageable": { … },        // Spring Data’s Pageable metadata
+      "pageable": { },        // Spring Data’s Pageable metadata
       "last": false,            // If this is the last page
       "totalPages": 5,          // (optional; Spring Boot may not show totalPages for Slice)
       "totalElements": 50,      // (optional for Slice)
       "size": 10,
       "number": 0,
-      "sort": { … },            // Sort metadata
+      "sort": { },            // Sort metadata
       "first": true,
       "numberOfElements": 10,
       "empty": false,
@@ -505,8 +504,8 @@ Below is a consolidated list of all available endpoints with URI, HTTP method, r
       "title": "Introduction to CS",
       "description": "Basics of computer science",
       "year": 2025,
-      "teacher": { … },
-      "students": [ … ]
+      "teacher": { },
+      "students": [  ]
     }
   }
   ```
@@ -610,7 +609,7 @@ Below is a consolidated list of all available endpoints with URI, HTTP method, r
           "id": 1,
           "code": "CS101",
           "title": "Introduction to CS",
-          "description": "...",
+          "description": " ",
           "year": 2025,
           "teacher": null,
           "students": []
@@ -653,13 +652,12 @@ Below is a consolidated list of all available endpoints with URI, HTTP method, r
           "firstName": "Alice",
           "lastName": "Smith",
           "title": "Dr.",
-          "courses": [ … ]
+          "courses": [  ]
         },
-        …
+         
       ],
-      "pageable": { … },
+      "pageable": {   },
       "last": false,
-      ... (other slice fields)
     }
   }
   ```
@@ -718,7 +716,7 @@ Below is a consolidated list of all available endpoints with URI, HTTP method, r
       "firstName": "Alice",
       "lastName": "Smith",
       "title": "Dr.",
-      "courses": [ … ]
+      "courses": [   ]
     }
   }
   ```
@@ -763,7 +761,6 @@ Below is a consolidated list of all available endpoints with URI, HTTP method, r
         "id": 1,
         "code": "CS101",
         "title": "Introduction to CS",
-        ...
       }
     }
   }
@@ -802,13 +799,12 @@ Below is a consolidated list of all available endpoints with URI, HTTP method, r
           "firstName": "Bob",
           "lastName": "Brown",
           "serialNumber": "S123",
-          "course": { … }
+          "course": {   }
         },
-        …
+         
       ],
-      "pageable": { … },
+      "pageable": {   },
       "last": false,
-      … (other pagination fields)
     }
   }
   ```
@@ -1019,7 +1015,7 @@ public class CourseStudentAssocDto {
 * Whenever a required field or entity is missing/not found, the service-layer method:
 
     1. Calls `ErrorContext.addStatusMessage(ServerErrorEnum.*)` to record a new `ServerStatus`.
-    2. Throws `TestServerRuntimeException("...")`.
+    2. Throws `TestServerRuntimeException(" ")`.
 * The controllers catch any `Exception` and log it with SLF4J:
 
   ```java
