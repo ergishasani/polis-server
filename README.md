@@ -1153,6 +1153,5 @@ Permission is hereby granted, free of charge, to any person obtaining a copy
 of this project and associated documentation files (the "Software"), to deal
 in the Software without restriction...
 
-[Full text of the MIT License goes here.]
 ```
 
