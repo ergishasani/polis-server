@@ -1,21 +1,21 @@
+// src/main/java/al/polis/appserver/dto/LongIdDto.java
+
 package al.polis.appserver.dto;
 
 /**
- * A simple DTO that carries a single Long‐typed ID.
+ * Simple DTO carrying a single Long ID.
  */
 public class LongIdDto {
-
     private Long id;
 
-    /**
-     * No‐arg constructor (needed for JSON deserialization).
-     */
+    /** No-arg constructor for JSON deserialization */
     public LongIdDto() {
     }
 
     /**
-     * All‐args constructor to manually build the object.
-     * @param id the Long ID
+     * All-args constructor for convenience.
+     *
+     * @param id the Long identifier
      */
     public LongIdDto(Long id) {
         this.id = id;
@@ -31,9 +31,6 @@ public class LongIdDto {
         this.id = id;
     }
 
-    /**
-     * toString() override, useful for logging/debugging.
-     */
     @Override
     public String toString() {
         return "LongIdDto{" +

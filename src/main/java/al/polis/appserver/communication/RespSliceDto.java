@@ -1,57 +1,50 @@
+// src/main/java/al/polis/appserver/communication/RespSliceDto.java
+
 package al.polis.appserver.communication;
 
 import org.springframework.data.domain.Slice;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
- * A DTO that carries a Spring Data Slice<T> plus a list of ServerStatus messages.
+ * Wrapper for returning a paged slice of data objects along with any error context.
+ *
+ * @param <T> the type of the data objects being returned
  */
-public class RespSliceDto<T> extends ResponseWithStatusDto {
+public class RespSliceDto<T> {
+    private Slice<T> dataSlice;
+    private Object errorContext; // Adjust the type if ErrorContext has a specific DTO form
 
-    private Slice<T> slice;
-
-    /** No-arg constructor (needed for JSON deserialization). */
+    /** No-arg constructor for JSON deserialization */
     public RespSliceDto() {
     }
 
     /**
-     * Wraps a Slice<T> with an empty status list.
+     * All-args constructor for convenience.
      *
-     * @param slice the Spring Data Slice of results
+     * @param dataSlice    the Slice&lt;T&gt; (e.g., a page of CourseDto, StudentDto, etc.)
+     * @param errorContext the error context (possibly null or empty if no errors)
      */
-    public RespSliceDto(Slice<T> slice) {
-        this.slice = slice;
-        super.setStatus(Collections.emptyList());
+    public RespSliceDto(Slice<T> dataSlice, Object errorContext) {
+        this.dataSlice = dataSlice;
+        this.errorContext = errorContext;
     }
 
-    /**
-     * Wraps a Slice<T> with a provided list of ServerStatus.
-     *
-     * @param slice  the Spring Data Slice of results
-     * @param status the list of ServerStatus messages
-     */
-    public RespSliceDto(Slice<T> slice, List<ServerStatus> status) {
-        this.slice = slice;
-        super.setStatus(status);
+    /** Getter for dataSlice */
+    public Slice<T> getDataSlice() {
+        return dataSlice;
     }
 
-    /** Getter for slice */
-    public Slice<T> getSlice() {
-        return slice;
+    /** Setter for dataSlice */
+    public void setDataSlice(Slice<T> dataSlice) {
+        this.dataSlice = dataSlice;
     }
 
-    /** Setter for slice */
-    public void setSlice(Slice<T> slice) {
-        this.slice = slice;
+    /** Getter for errorContext */
+    public Object getErrorContext() {
+        return errorContext;
     }
 
-    @Override
-    public String toString() {
-        return "RespSliceDto{" +
-                "slice=" + slice +
-                ", status=" + getStatus() +
-                '}';
+    /** Setter for errorContext */
+    public void setErrorContext(Object errorContext) {
+        this.errorContext = errorContext;
     }
 }

@@ -1,56 +1,54 @@
+// src/main/java/al/polis/appserver/dto/CourseTeacherAssocDto.java
+
 package al.polis.appserver.dto;
 
 /**
- * Carries the association between a teacher and a course (two ID fields).
+ * DTO used to associate or dissociate a teacher with a course.
  */
 public class CourseTeacherAssocDto {
+    private Long courseId;
+    private Long teacherId;
 
-    private Long idTeacher;
-    private Long idCourse;
-
-    /** No‐arg constructor (needed for JSON deserialization). */
+    /** No-arg constructor for JSON deserialization */
     public CourseTeacherAssocDto() {
     }
 
     /**
-     * All‐args constructor if you want to instantiate manually.
+     * All-args constructor for convenience.
      *
-     * @param idTeacher the ID of the teacher
-     * @param idCourse  the ID of the course
+     * @param courseId  the ID of the course
+     * @param teacherId the ID of the teacher
      */
-    public CourseTeacherAssocDto(Long idTeacher, Long idCourse) {
-        this.idTeacher = idTeacher;
-        this.idCourse = idCourse;
+    public CourseTeacherAssocDto(Long courseId, Long teacherId) {
+        this.courseId = courseId;
+        this.teacherId = teacherId;
     }
 
-    /** Getter for idTeacher */
-    public Long getIdTeacher() {
-        return idTeacher;
+    /** Getter for courseId */
+    public Long getCourseId() {
+        return courseId;
     }
 
-    /** Setter for idTeacher */
-    public void setIdTeacher(Long idTeacher) {
-        this.idTeacher = idTeacher;
+    /** Setter for courseId */
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
     }
 
-    /** Getter for idCourse */
-    public Long getIdCourse() {
-        return idCourse;
+    /** Getter for teacherId */
+    public Long getTeacherId() {
+        return teacherId;
     }
 
-    /** Setter for idCourse */
-    public void setIdCourse(Long idCourse) {
-        this.idCourse = idCourse;
+    /** Setter for teacherId */
+    public void setTeacherId(Long teacherId) {
+        this.teacherId = teacherId;
     }
 
-    /**
-     * toString() override for easier logging/debugging.
-     */
     @Override
     public String toString() {
         return "CourseTeacherAssocDto{" +
-                "idTeacher=" + idTeacher +
-                ", idCourse=" + idCourse +
+                "courseId=" + courseId +
+                ", teacherId=" + teacherId +
                 '}';
     }
 }

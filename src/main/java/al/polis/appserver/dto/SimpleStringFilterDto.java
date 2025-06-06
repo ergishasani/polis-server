@@ -1,54 +1,55 @@
 // src/main/java/al/polis/appserver/dto/SimpleStringFilterDto.java
+
 package al.polis.appserver.dto;
 
 /**
- * Carries a simple string-based filter plus pagination information.
+ * Carries a simple text filter plus pagination info.
+ * Used to filter courses (e.g., by title or description) with paging.
  */
 public class SimpleStringFilterDto {
     private String filter;
     private PaginationDto pagination;
 
-    /**
-     * No-arg constructor (needed for JSON deserialization).
-     */
-    public SimpleStringFilterDto() { }
+    /** No-arg constructor (needed for JSON deserialization). */
+    public SimpleStringFilterDto() {
+    }
 
     /**
-     * All-args constructor.
+     * All-args constructor for manual instantiation.
      *
-     * @param filter     the string to filter by (e.g., search term)
-     * @param pagination pagination details (page number and page size)
+     * @param filter     the text to filter on (e.g., course title/description)
+     * @param pagination pagination information (page number + page size)
      */
     public SimpleStringFilterDto(String filter, PaginationDto pagination) {
         this.filter = filter;
         this.pagination = pagination;
     }
 
-    /**
-     * Returns the filter string.
-     */
+    /** Getter for filter text. */
     public String getFilter() {
         return filter;
     }
 
-    /**
-     * Sets the filter string.
-     */
+    /** Setter for filter text. */
     public void setFilter(String filter) {
         this.filter = filter;
     }
 
-    /**
-     * Returns the pagination details.
-     */
+    /** Getter for pagination info. */
     public PaginationDto getPagination() {
         return pagination;
     }
 
-    /**
-     * Sets the pagination details.
-     */
+    /** Setter for pagination info. */
     public void setPagination(PaginationDto pagination) {
         this.pagination = pagination;
+    }
+
+    @Override
+    public String toString() {
+        return "SimpleStringFilterDto{" +
+                "filter='" + filter + '\'' +
+                ", pagination=" + pagination +
+                '}';
     }
 }

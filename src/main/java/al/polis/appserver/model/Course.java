@@ -1,6 +1,8 @@
+// File: src/main/java/al/polis/appserver/model/Course.java
+
 package al.polis.appserver.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
@@ -8,10 +10,11 @@ import java.util.Objects;
  * Represents a Course entity in the database.
  */
 @Entity
+@Table(name = "course")
 public class Course {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String code;
@@ -20,28 +23,15 @@ public class Course {
     private Integer year;
 
     @ManyToOne
+    @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Student> students;
 
-    /**
-     * No-arg constructor required by JPA.
-     */
     public Course() {
     }
 
-    /**
-     * All-args constructor for manual instantiation.
-     *
-     * @param id          the course ID
-     * @param code        the course code
-     * @param title       the course title
-     * @param description the course description
-     * @param year        the year the course is offered
-     * @param teacher     the assigned teacher
-     * @param students    the list of enrolled students
-     */
     public Course(Long id,
                   String code,
                   String title,

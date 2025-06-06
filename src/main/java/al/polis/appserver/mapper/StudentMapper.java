@@ -1,41 +1,36 @@
+// File: src/main/java/al/polis/appserver/mapper/StudentMapper.java
+
 package al.polis.appserver.mapper;
 
-import al.polis.appserver.dto.CourseDto;
 import al.polis.appserver.dto.StudentDto;
 import al.polis.appserver.model.Student;
-import org.mapstruct.*;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 /**
- * Map Student ↔ StudentDto.
- * We will not call back into CourseMapper automatically, to avoid the cycle.
+ * Mapper interface for converting between Student entities and StudentDto.
+ *
+ * Uses MapStruct to automatically generate the implementation.
+ * The unmappedTargetPolicy=IGNORE ensures that any fields not explicitly mapped
+ * (such as nested courses lists) are skipped without causing a compile error.
  */
 @Mapper(
-        componentModel = "spring"
-        // no "uses = { CourseMapper.class }" here
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = { CourseMapper.class }  // if you want to map nested Course <-> CourseDto
 )
 public interface StudentMapper {
 
-    @Mapping(target = "course", ignore = true)
-    StudentDto toDto(Student source);
-
-    @InheritInverseConfiguration
-    @Mapping(target = "course", ignore = true)
-    Student toEntity(StudentDto dto);
+    /**
+     * Convert a Student entity to a StudentDto.
+     * Fields with matching names (id, firstName, lastName, email) are mapped automatically.
+     * The courses field is ignored unless CourseMapper is provided.
+     */
+    StudentDto toDto(Student student);
 
     /**
-     * If you need a full CourseDto inside your StudentDto, call CourseMapper manually in your service.
-     * Or define a custom method that only maps ID & code, but does not go all the way back to Student.
+     * Convert a StudentDto to a Student entity.
+     * Fields with matching names are mapped automatically.
      */
-    default CourseDto mapCourseToCourseDto(al.polis.appserver.model.Course course) {
-        if (course == null) {
-            return null;
-        }
-        CourseDto cd = new CourseDto();
-        cd.setId(course.getId());
-        cd.setCode(course.getCode());
-        cd.setTitle(course.getTitle());
-        // Don’t set cd.students here to avoid looping back
-        return cd;
-    }
+    Student toEntity(StudentDto studentDto);
 }

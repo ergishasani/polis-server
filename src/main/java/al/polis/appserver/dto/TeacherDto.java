@@ -1,3 +1,5 @@
+// src/main/java/al/polis/appserver/dto/TeacherDto.java
+
 package al.polis.appserver.dto;
 
 import java.util.List;
@@ -9,31 +11,33 @@ public class TeacherDto {
     private Long id;
     private String firstName;
     private String lastName;
-    private String title;
-    private List<CourseDto> courses;
+    private String email;
+    private List<CourseDto> courses;  // List of courses the teacher instructs
 
-    /** No-arg constructor (needed for JSON deserialization). */
+    /** No-arg constructor for JSON deserialization */
     public TeacherDto() {
     }
 
     /**
      * All-args constructor for manual instantiation.
-     *
-     * @param id         the teacher’s ID
-     * @param firstName  first name
-     * @param lastName   last name
-     * @param title      academic title
-     * @param courses    list of CourseDto objects
      */
-    public TeacherDto(Long id, String firstName, String lastName, String title, List<CourseDto> courses) {
+    public TeacherDto(
+            Long id,
+            String firstName,
+            String lastName,
+            String email,
+            List<CourseDto> courses
+    ) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.title = title;
+        this.email = email;
         this.courses = courses;
     }
 
-    // Getters and setters
+    // ----------------------------------
+    // Getters and Setters
+    // ----------------------------------
 
     public Long getId() {
         return id;
@@ -59,12 +63,12 @@ public class TeacherDto {
         this.lastName = lastName;
     }
 
-    public String getTitle() {
-        return title;
+    public String getEmail() {
+        return email;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public List<CourseDto> getCourses() {
@@ -81,7 +85,7 @@ public class TeacherDto {
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", title='" + title + '\'' +
+                ", email='" + email + '\'' +
                 ", courses=" + courses +
                 '}';
     }

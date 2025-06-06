@@ -1,6 +1,8 @@
+// File: src/main/java/al/polis/appserver/model/Teacher.java
+
 package al.polis.appserver.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
@@ -8,45 +10,34 @@ import java.util.Objects;
  * Represents a Teacher entity in the database.
  */
 @Entity
+@Table(name = "teacher")
 public class Teacher {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String firstName;
     private String lastName;
-    private String title;
+    private String email;
 
-    @OneToMany(mappedBy = "teacher")
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses;
 
-    /**
-     * No-arg constructor required by JPA.
-     */
     public Teacher() {
     }
 
-    /**
-     * All-args constructor for manual instantiation.
-     *
-     * @param id         the teacher’s ID
-     * @param firstName  first name
-     * @param lastName   last name
-     * @param title      academic title
-     * @param courses    list of courses taught
-     */
-    public Teacher(Long id, String firstName, String lastName, String title, List<Course> courses) {
+    public Teacher(Long id, String firstName, String lastName, String email, List<Course> courses) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.title = title;
+        this.email = email;
         this.courses = courses;
     }
 
-    // ------------
-    // Getters/setters
-    // ------------
+    // ----------------------------
+    // Getters and Setters
+    // ----------------------------
 
     public Long getId() {
         return id;
@@ -72,12 +63,12 @@ public class Teacher {
         this.lastName = lastName;
     }
 
-    public String getTitle() {
-        return title;
+    public String getEmail() {
+        return email;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public List<Course> getCourses() {
@@ -88,25 +79,25 @@ public class Teacher {
         this.courses = courses;
     }
 
-    // ------------
-    // toString
-    // ------------
+    // ----------------------------
+    // toString()
+    // ----------------------------
 
     @Override
     public String toString() {
-        // Avoid infinite recursion by not printing full Course objects
+        int courseCount = (courses != null ? courses.size() : 0);
         return "Teacher{" +
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", title='" + title + '\'' +
-                ", coursesCount=" + (courses != null ? courses.size() : 0) +
+                ", email='" + email + '\'' +
+                ", courseCount=" + courseCount +
                 '}';
     }
 
-    // ------------
-    // equals & hashCode
-    // ------------
+    // ----------------------------
+    // equals() & hashCode()
+    // ----------------------------
 
     @Override
     public boolean equals(Object o) {
@@ -114,13 +105,12 @@ public class Teacher {
         if (o == null || getClass() != o.getClass()) return false;
 
         Teacher teacher = (Teacher) o;
-        // Two persisted entities are equal if they share the same non-null ID
         if (id == null || teacher.id == null) return false;
         return Objects.equals(id, teacher.id);
     }
 
     @Override
     public int hashCode() {
-        return (id != null) ? id.hashCode() : 0;
+        return (id != null ? id.hashCode() : 0);
     }
 }

@@ -1,51 +1,47 @@
-package al.polis.appserver.communication;
+// src/main/java/al/polis/appserver/communication/ErrorContext.java
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package al.polis.appserver.communication;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Holds thread‐local ServerStatus messages.
+ * A simple context holder for collecting error messages (or other
+ * contextual information) during a request. Uses a ThreadLocal to
+ * keep errors isolated per-request.
+ *
+ * Controllers typically call ErrorContext.readAndClean() to retrieve
+ * any accumulated errors and reset the context for the next request.
  */
 public class ErrorContext {
-    private static final Logger log = LoggerFactory.getLogger(ErrorContext.class);
+    // ThreadLocal to store error messages (or other context) per thread/request
+    private static final ThreadLocal<List<String>> errorsHolder = ThreadLocal.withInitial(ArrayList::new);
 
-    private static final ThreadLocal<List<ServerStatus>> listaStatus;
-
-    static {
-        listaStatus = new ThreadLocal<>();
+    /**
+     * Adds an error message to the current context.
+     *
+     * @param message the error message to add
+     */
+    public static void addError(String message) {
+        errorsHolder.get().add(message);
     }
 
     /**
-     * Adds a new ServerStatus (based on the given error enum) to the current thread’s list.
+     * Retrieves and clears the current list of error messages.
+     *
+     * @return a List of error messages (empty if none)
      */
-    public static void addStatusMessage(ServerErrorEnum error) {
-        ServerStatus status = new ServerStatus(error);
-        List<ServerStatus> ls = listaStatus.get();
-        if (ls == null) {
-            ls = new ArrayList<>();
-            listaStatus.set(ls);
-        }
-
-        ls.add(status);
-        logTrace(status);
+    public static List<String> readAndClean() {
+        List<String> currentErrors = new ArrayList<>(errorsHolder.get());
+        errorsHolder.get().clear();
+        return currentErrors;
     }
 
     /**
-     * Returns the current thread’s accumulated statuses and then clears them.
+     * Clears any accumulated errors without returning them.
+     * Useful if you want to abandon the error context.
      */
-    public static List<ServerStatus> readAndClean() {
-        List<ServerStatus> lista = listaStatus.get();
-        listaStatus.remove();
-        if (lista == null) {
-            lista = new ArrayList<>();
-        }
-        return lista;
-    }
-
-    private static void logTrace(ServerStatus ms) {
-        log.info("Trace ID = {}", ms);
+    public static void clear() {
+        errorsHolder.get().clear();
     }
 }

@@ -3,8 +3,8 @@ package al.polis.appserver.controller;
 import al.polis.appserver.communication.ErrorContext;
 import al.polis.appserver.communication.RespSingleDto;
 import al.polis.appserver.communication.RespSliceDto;
-import al.polis.appserver.dto.CourseStudentAssocDto;
 import al.polis.appserver.dto.LongIdDto;
+import al.polis.appserver.dto.PaginationDto;
 import al.polis.appserver.dto.SimpleStringFilterDto;
 import al.polis.appserver.dto.StudentDto;
 import al.polis.appserver.service.StudentService;
@@ -15,27 +15,61 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for Student-related operations.
- * Uses explicit constructor injection for StudentService.
+ * Adds GET endpoints for listing (paged) and retrieving a single student by ID.
  */
 @RestController
 @CrossOrigin("*")
 public class StudentController {
+
     private static final Logger log = LoggerFactory.getLogger(StudentController.class);
 
     private final StudentService studentService;
 
-    /**
-     * Constructor-based injection of StudentService.
-     */
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
     }
 
-    /**
-     * Creates or updates a Student.
-     * URL: POST /upsertStudent
-     * Body: StudentDto
-     */
+    // ------------------------------------------------------------------------
+    // GET /getAllStudents?page={page}&size={size}
+    // Returns a paged slice of StudentDto objects
+    // ------------------------------------------------------------------------
+    @GetMapping("/getAllStudents")
+    public RespSliceDto<StudentDto> getAllStudents(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size
+    ) {
+        Slice<StudentDto> res = null;
+        try {
+            // Build a SimpleStringFilterDto with empty filter and pagination
+            SimpleStringFilterDto dto = new SimpleStringFilterDto();
+            dto.setFilter("");
+            dto.setPagination(new PaginationDto(page, size));
+            res = studentService.filterStudents(dto);
+        } catch (Exception ex) {
+            log.error("Error in getAllStudents: " + ex.getMessage(), ex);
+        }
+        return new RespSliceDto<>(res, ErrorContext.readAndClean());
+    }
+
+    // ------------------------------------------------------------------------
+    // GET /getStudent/{id}
+    // Returns a single StudentDto wrapped in RespSingleDto
+    // ------------------------------------------------------------------------
+    @GetMapping("/getStudent/{id}")
+    public RespSingleDto<StudentDto> getStudentById(@PathVariable("id") Long id) {
+        StudentDto res = null;
+        try {
+            LongIdDto dto = new LongIdDto(id);
+            res = studentService.getStudent(dto);
+        } catch (Exception ex) {
+            log.error("Error in getStudentById: " + ex.getMessage(), ex);
+        }
+        return new RespSingleDto<>(res, ErrorContext.readAndClean());
+    }
+
+    // ------------------------------------------------------------------------
+    // POST /upsertStudent  (Create or update a student)
+    // ------------------------------------------------------------------------
     @PostMapping("/upsertStudent")
     @ResponseBody
     public RespSingleDto<StudentDto> upsertStudent(@RequestBody StudentDto student) {
@@ -43,16 +77,14 @@ public class StudentController {
         try {
             res = studentService.upsertStudent(student);
         } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
+            log.error("Error in upsertStudent: " + ex.getMessage(), ex);
         }
         return new RespSingleDto<>(res, ErrorContext.readAndClean());
     }
 
-    /**
-     * Filters students by a simple string.
-     * URL: POST /filterStudents
-     * Body: SimpleStringFilterDto
-     */
+    // ------------------------------------------------------------------------
+    // POST /filterStudents  (Filter students by a string → returns paged slice)
+    // ------------------------------------------------------------------------
     @PostMapping("/filterStudents")
     @ResponseBody
     public RespSliceDto<StudentDto> filterStudents(@RequestBody SimpleStringFilterDto filter) {
@@ -60,64 +92,29 @@ public class StudentController {
         try {
             res = studentService.filterStudents(filter);
         } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
+            log.error("Error in filterStudents: " + ex.getMessage(), ex);
         }
         return new RespSliceDto<>(res, ErrorContext.readAndClean());
     }
 
-    /**
-     * Deletes a student by ID.
-     * URL: POST /deleteStudent
-     * Body: LongIdDto (wraps the student ID)
-     */
+    // ------------------------------------------------------------------------
+    // POST /deleteStudent  (Delete a student by ID)
+    // ------------------------------------------------------------------------
     @PostMapping("/deleteStudent")
     @ResponseBody
     public RespSingleDto<Void> deleteStudent(@RequestBody LongIdDto studentId) {
         try {
             studentService.deleteStudent(studentId);
         } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
+            log.error("Error in deleteStudent: " + ex.getMessage(), ex);
         }
         return new RespSingleDto<>(null, ErrorContext.readAndClean());
     }
 
-    /**
-     * Associates a student to a course.
-     * URL: POST /associateStudentToCourse
-     * Body: CourseStudentAssocDto
-     */
-    @PostMapping("/associateStudentToCourse")
-    @ResponseBody
-    public RespSingleDto<Void> associateStudentToCourse(@RequestBody CourseStudentAssocDto assoc) {
-        try {
-            studentService.associateStudentToCourse(assoc);
-        } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
-        }
-        return new RespSingleDto<>(null, ErrorContext.readAndClean());
-    }
-
-    /**
-     * Removes a student from a course.
-     * URL: POST /removeStudentFromCourse
-     * Body: CourseStudentAssocDto
-     */
-    @PostMapping("/removeStudentFromCourse")
-    @ResponseBody
-    public RespSingleDto<Void> removeStudentFromCourse(@RequestBody CourseStudentAssocDto assoc) {
-        try {
-            studentService.removeStudentFromCourse(assoc);
-        } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
-        }
-        return new RespSingleDto<>(null, ErrorContext.readAndClean());
-    }
-
-    /**
-     * Retrieves a single student by ID.
-     * URL: POST /getStudent
-     * Body: LongIdDto (wraps the student ID)
-     */
+    // ------------------------------------------------------------------------
+    // POST /getStudent  (Retrieve a student by ID via POST)
+    // Note: GET version exists above; this POST remains for compatibility.
+    // ------------------------------------------------------------------------
     @PostMapping("/getStudent")
     @ResponseBody
     public RespSingleDto<StudentDto> getStudent(@RequestBody LongIdDto studentId) {
@@ -125,7 +122,7 @@ public class StudentController {
         try {
             res = studentService.getStudent(studentId);
         } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
+            log.error("Error in POST getStudent: " + ex.getMessage(), ex);
         }
         return new RespSingleDto<>(res, ErrorContext.readAndClean());
     }

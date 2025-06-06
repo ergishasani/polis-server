@@ -1,43 +1,29 @@
+// src/main/java/al/polis/appserver/communication/RespSingleDto.java
+
 package al.polis.appserver.communication;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
- * A DTO that carries exactly one “data” object (of type T),
- * plus a list of ServerStatus messages.
+ * Wrapper for returning a single data object along with any error context.
+ *
+ * @param <T> the type of the data being returned
  */
-public class RespSingleDto<T> extends ResponseWithStatusDto {
-
+public class RespSingleDto<T> {
     private T data;
+    private Object errorContext; // Adjust the type if ErrorContext has a specific DTO form
 
-    /** No-arg constructor: 'data' is null, and status defaults to null. */
+    /** No-arg constructor for JSON deserialization */
     public RespSingleDto() {
     }
 
     /**
-     * Build a RespSingleDto that wraps a single data object and
-     * an empty list of statuses.
+     * All-args constructor for convenience.
+     *
+     * @param data         the single data object (e.g., a CourseDto, StudentDto, etc.)
+     * @param errorContext the error context (possibly null or empty if no errors)
      */
-    public RespSingleDto(T data) {
+    public RespSingleDto(T data, Object errorContext) {
         this.data = data;
-        super.setStatus(Collections.emptyList());
-    }
-
-    /**
-     * Build a RespSingleDto that wraps a single data object and
-     * a custom list of ServerStatus.
-     */
-    public RespSingleDto(T data, List<ServerStatus> lista) {
-        this.data = data;
-        super.setStatus(lista);
-    }
-
-    /**
-     * Build a RespSingleDto with no 'data' (null) and only a list of statuses.
-     */
-    public RespSingleDto(List<ServerStatus> lista) {
-        super.setStatus(lista);
+        this.errorContext = errorContext;
     }
 
     /** Getter for data */
@@ -48,5 +34,15 @@ public class RespSingleDto<T> extends ResponseWithStatusDto {
     /** Setter for data */
     public void setData(T data) {
         this.data = data;
+    }
+
+    /** Getter for errorContext */
+    public Object getErrorContext() {
+        return errorContext;
+    }
+
+    /** Setter for errorContext */
+    public void setErrorContext(Object errorContext) {
+        this.errorContext = errorContext;
     }
 }

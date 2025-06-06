@@ -1,49 +1,43 @@
+// File: src/main/java/al/polis/appserver/model/Student.java
+
 package al.polis.appserver.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import org.hibernate.proxy.HibernateProxy;
+import javax.persistence.*;
+import java.util.Objects;
 
 /**
- * Represents a Student in the database.
+ * Represents a Student entity in the database.
  */
 @Entity
+@Table(name = "student")
 public class Student {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String firstName;
     private String lastName;
-    private String serialNumber;
+    private String email;
 
     @ManyToOne
+    @JoinColumn(name = "course_id")
     private Course course;
 
-    /**
-     * No-arg constructor required by JPA (for entity instantiation).
-     */
     public Student() {
     }
 
-    /**
-     * All-args constructor if you ever want to manually create a Student.
-     * (JPA itself only requires the no-arg constructor.)
-     */
-    public Student(Long id, String firstName, String lastName, String serialNumber, Course course) {
+    public Student(Long id, String firstName, String lastName, String email, Course course) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.serialNumber = serialNumber;
+        this.email = email;
         this.course = course;
     }
 
-    // -------------------
-    // Explicit getters & setters
-    // -------------------
+    // ----------------------------
+    // Getters and Setters
+    // ----------------------------
 
     public Long getId() {
         return id;
@@ -69,12 +63,12 @@ public class Student {
         this.lastName = lastName;
     }
 
-    public String getSerialNumber() {
-        return serialNumber;
+    public String getEmail() {
+        return email;
     }
 
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Course getCourse() {
@@ -85,49 +79,38 @@ public class Student {
         this.course = course;
     }
 
-    // -------------------
-    // toString() for easier logging/debugging
-    // -------------------
+    // ----------------------------
+    // toString()
+    // ----------------------------
 
     @Override
     public String toString() {
-        // Only print the Course’s ID (if present) to avoid infinite loops
         Long courseId = (course != null ? course.getId() : null);
         return "Student{" +
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", serialNumber='" + serialNumber + '\'' +
+                ", email='" + email + '\'' +
                 ", courseId=" + courseId +
                 '}';
     }
 
-    // -------------------
-    // equals() & hashCode() (recommended for JPA entities)
-    // -------------------
+    // ----------------------------
+    // equals() & hashCode()
+    // ----------------------------
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        // If Hibernate gave us a proxy, unwrap it:
-        if (o instanceof HibernateProxy) {
-            o = ((HibernateProxy) o).getHibernateLazyInitializer().getImplementation();
-        }
-        if (!(o instanceof Student)) return false;
-
-        Student other = (Student) o;
-        // Two new (unsaved) entities with null IDs are not considered equal
-        if (id == null || other.id == null) {
-            return false;
-        }
-        return id.equals(other.id);
+        Student student = (Student) o;
+        if (id == null || student.id == null) return false;
+        return Objects.equals(id, student.id);
     }
 
     @Override
     public int hashCode() {
-        // Only use the primary key if it’s non-null
         return (id != null ? id.hashCode() : 0);
     }
 }

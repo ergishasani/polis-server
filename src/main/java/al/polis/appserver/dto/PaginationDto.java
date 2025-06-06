@@ -1,3 +1,5 @@
+// src/main/java/al/polis/appserver/dto/PaginationDto.java
+
 package al.polis.appserver.dto;
 
 /**
@@ -14,8 +16,8 @@ public class PaginationDto {
     /**
      * All-args constructor for manual instantiation.
      *
-     * @param pageNumber zero-based page index
-     * @param pageSize   number of items per page
+     * @param pageNumber the page index (0-based)
+     * @param pageSize   the number of items per page
      */
     public PaginationDto(Integer pageNumber, Integer pageSize) {
         this.pageNumber = pageNumber;

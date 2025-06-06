@@ -1,50 +1,36 @@
+// File: src/main/java/al/polis/appserver/mapper/CourseMapper.java
+
 package al.polis.appserver.mapper;
 
 import al.polis.appserver.dto.CourseDto;
-import al.polis.appserver.dto.StudentDto;
 import al.polis.appserver.model.Course;
-import org.mapstruct.*;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 /**
- * Map Course ↔ CourseDto.
- * Notice: We will strip out the “cascading” call to StudentMapper here;
- * instead, we’ll manually map over `course.getStudents()` to just grab
- * student IDs (or a few fields) to avoid pulling in StudentMapper.
+ * Mapper interface for converting between Course entities and CourseDto.
+ *
+ * Uses MapStruct to automatically generate the implementation.
+ * The unmappedTargetPolicy=IGNORE ensures that any fields not explicitly mapped
+ * (such as nested teacher or students lists) are skipped without causing a compile error.
  */
 @Mapper(
-        componentModel = "spring"
-        // no "uses = { StudentMapper.class }" here anymore
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = { TeacherMapper.class }  // if you want to map nested Teacher <-> TeacherDto
 )
 public interface CourseMapper {
 
-    @Mapping(target = "students", ignore = true)
-        // We choose to ignore the “students” list here or map only IDs manually.
-    CourseDto toDto(Course source);
-
-    @InheritInverseConfiguration
-    @Mapping(target = "students", ignore = true)
-    Course toEntity(CourseDto dto);
+    /**
+     * Convert a Course entity to a CourseDto.
+     * Fields with matching names (id, code, title, description, year) are mapped automatically.
+     * The teacher field is mapped via TeacherMapper; students are ignored unless you provide a StudentMapper.
+     */
+    CourseDto toDto(Course course);
 
     /**
-     * If you want to manually map Course → List<StudentDto> without pulling in the full StudentMapper
-     * (for example, you only need each student’s ID and name), you can declare a helper:
+     * Convert a CourseDto to a Course entity.
+     * Fields with matching names are mapped automatically.
      */
-    default List<StudentDto> mapStudentsListToDtoList(List<al.polis.appserver.model.Student> students) {
-        if (students == null) {
-            return null;
-        }
-        return students.stream()
-                .map(s -> {
-                    StudentDto sd = new StudentDto();
-                    sd.setId(s.getId());
-                    sd.setFirstName(s.getFirstName());
-                    sd.setLastName(s.getLastName());
-                    // don’t set sd.course here to avoid circular injection
-                    return sd;
-                })
-                .toList();
-    }
+    Course toEntity(CourseDto courseDto);
 }

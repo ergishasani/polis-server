@@ -1,3 +1,5 @@
+// src/main/java/al/polis/appserver/dto/CourseDto.java
+
 package al.polis.appserver.dto;
 
 import java.util.List;
@@ -12,24 +14,24 @@ public class CourseDto {
     private String description;
     private Integer year;
     private TeacherDto teacher;            // Use TeacherDto instead of Teacher entity
-    private List<StudentDto> students;
+    private List<StudentDto> students;     // List of enrolled students
 
-    /**
-     * No-arg constructor (needed for JSON deserialization).
-     */
+    /** No-arg constructor for JSON deserialization */
     public CourseDto() {
     }
 
     /**
      * All-args constructor for manual instantiation.
      */
-    public CourseDto(Long id,
-                     String code,
-                     String title,
-                     String description,
-                     Integer year,
-                     TeacherDto teacher,
-                     List<StudentDto> students) {
+    public CourseDto(
+            Long id,
+            String code,
+            String title,
+            String description,
+            Integer year,
+            TeacherDto teacher,
+            List<StudentDto> students
+    ) {
         this.id = id;
         this.code = code;
         this.title = title;
@@ -39,9 +41,9 @@ public class CourseDto {
         this.students = students;
     }
 
-    // -----------------------------------
+    // ----------------------------------
     // Getters and Setters
-    // -----------------------------------
+    // ----------------------------------
 
     public Long getId() {
         return id;
@@ -98,10 +100,6 @@ public class CourseDto {
     public void setStudents(List<StudentDto> students) {
         this.students = students;
     }
-
-    // -----------------------------------
-    // toString() for debugging
-    // -----------------------------------
 
     @Override
     public String toString() {
