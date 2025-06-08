@@ -12,18 +12,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * Provides CRUD operations and paging/filtering by title or description.
  */
 public interface CourseRepo extends JpaRepository<Course, Long> {
+
     /**
-     * Find all courses where title or description contains the given filter string (case‐insensitive),
-     * returning a Page of Course entities.
+     * Find all courses where title or description contains the given filter string
+     * (case‐insensitive), returning a Page of Course objects.
      *
-     * @param filter1  the substring to match against title
-     * @param filter2  the substring to match against description
-     * @param pageable pagination information
-     * @return a page of matching Course entities
+     * @param titleFilter       substring to match against title
+     * @param descriptionFilter substring to match against description
+     * @param pageable          pagination information
+     * @return a page of matching Course objects
      */
     Page<Course> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
-            String filter1,
-            String filter2,
+            String titleFilter,
+            String descriptionFilter,
             Pageable pageable
     );
 }

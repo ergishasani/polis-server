@@ -2,6 +2,20 @@
 
 package al.polis.appserver.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Slice;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import al.polis.appserver.communication.ErrorContext;
 import al.polis.appserver.communication.RespSingleDto;
 import al.polis.appserver.communication.RespSliceDto;
@@ -11,151 +25,100 @@ import al.polis.appserver.dto.LongIdDto;
 import al.polis.appserver.dto.PaginationDto;
 import al.polis.appserver.dto.SimpleStringFilterDto;
 import al.polis.appserver.service.CourseService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Slice;
-import org.springframework.web.bind.annotation.*;
 
-/**
- * REST controller for Course-related operations.
- * We add GET endpoints so that the front end can fetch all courses
- * and fetch a single course by ID via HTTP GET.
- */
 @RestController
-@CrossOrigin("*")
+@RequestMapping("/api/courses")
+@CrossOrigin(origins = "*")
 public class CourseController {
 
     private static final Logger log = LoggerFactory.getLogger(CourseController.class);
-
     private final CourseService courseService;
 
     public CourseController(CourseService courseService) {
         this.courseService = courseService;
     }
 
-    // ------------------------------------------------------------------------
-    // GET /getAllCourses?page={page}&size={size}
-    // Returns a paged slice of CourseDto objects
-    // ------------------------------------------------------------------------
-    @GetMapping("/getAllCourses")
-    public RespSliceDto<CourseDto> getAllCourses(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size
+    /**
+     * GET /api/courses?page={page}&size={size}&filter={filter}
+     */
+    @GetMapping
+    public RespSliceDto<CourseDto> listCourses(
+            @RequestParam(defaultValue = "0") String page,
+            @RequestParam(defaultValue = "20") String size,
+            @RequestParam(defaultValue = "") String filter
     ) {
-        Slice<CourseDto> res = null;
-        try {
-            // Build a SimpleStringFilterDto with empty filter and pagination
-            SimpleStringFilterDto dto = new SimpleStringFilterDto();
-            dto.setFilter("");   // empty filter string
-            dto.setPagination(new PaginationDto(page, size));
-            res = courseService.filterCourses(dto);
-        } catch (Exception ex) {
-            log.error("Error in getAllCourses: " + ex.getMessage(), ex);
-        }
-        return new RespSliceDto<>(res, ErrorContext.readAndClean());
+        // build filter + pagination DTO
+        SimpleStringFilterDto dto = new SimpleStringFilterDto();
+        dto.setFilter(filter);
+        dto.setPagination(new PaginationDto(Integer.parseInt(page), Integer.parseInt(size)));
+
+        Slice<CourseDto> slice = courseService.filterCourses(dto);
+        return new RespSliceDto<>(slice, ErrorContext.readAndClean());
     }
 
-    // ------------------------------------------------------------------------
-    // GET /getCourse/{id}
-    // Returns a single CourseDto wrapped in RespSingleDto
-    // ------------------------------------------------------------------------
-    @GetMapping("/getCourse/{id}")
-    public RespSingleDto<CourseDto> getCourseById(@PathVariable("id") Long id) {
-        CourseDto res = null;
-        try {
-            LongIdDto dto = new LongIdDto(id);
-            res = courseService.getCourse(dto);
-        } catch (Exception ex) {
-            log.error("Error in getCourseById: " + ex.getMessage(), ex);
-        }
-        return new RespSingleDto<>(res, ErrorContext.readAndClean());
+    /**
+     * GET /api/courses/{id}
+     */
+    @GetMapping("/{id}")
+    public RespSingleDto<CourseDto> getCourse(@PathVariable Long id) {
+        CourseDto course = courseService.getCourse(new LongIdDto(id));
+        return new RespSingleDto<>(course, ErrorContext.readAndClean());
     }
 
-    // ------------------------------------------------------------------------
-    // POST /upsertCourse  (Create or update a course)
-    // ------------------------------------------------------------------------
-    @PostMapping("/upsertCourse")
-    @ResponseBody
-    public RespSingleDto<CourseDto> upsertCourse(@RequestBody CourseDto course) {
-        CourseDto res = null;
-        try {
-            res = courseService.upsertCourse(course);
-        } catch (Exception ex) {
-            log.error("Error in upsertCourse: " + ex.getMessage(), ex);
-        }
-        return new RespSingleDto<>(res, ErrorContext.readAndClean());
+    /**
+     * POST /api/courses
+     */
+    @PostMapping
+    public RespSingleDto<CourseDto> createCourse(@RequestBody CourseDto dto) {
+        CourseDto created = courseService.upsertCourse(dto);
+        return new RespSingleDto<>(created, ErrorContext.readAndClean());
     }
 
-    // ------------------------------------------------------------------------
-    // POST /filterCourses  (Filter courses by a string → returns paged slice)
-    // ------------------------------------------------------------------------
-    @PostMapping("/filterCourses")
-    @ResponseBody
-    public RespSliceDto<CourseDto> filterCourses(@RequestBody SimpleStringFilterDto filter) {
-        Slice<CourseDto> res = null;
-        try {
-            res = courseService.filterCourses(filter);
-        } catch (Exception ex) {
-            log.error("Error in filterCourses: " + ex.getMessage(), ex);
-        }
-        return new RespSliceDto<>(res, ErrorContext.readAndClean());
+    /**
+     * PUT /api/courses/{id}
+     */
+    @PutMapping("/{id}")
+    public RespSingleDto<CourseDto> updateCourse(
+            @PathVariable Long id,
+            @RequestBody CourseDto dto
+    ) {
+        dto.setId(id);
+        CourseDto updated = courseService.upsertCourse(dto);
+        return new RespSingleDto<>(updated, ErrorContext.readAndClean());
     }
 
-    // ------------------------------------------------------------------------
-    // POST /deleteCourse  (Delete a course by ID)
-    // ------------------------------------------------------------------------
-    @PostMapping("/deleteCourse")
-    @ResponseBody
-    public RespSingleDto<Void> deleteCourse(@RequestBody LongIdDto courseId) {
-        try {
-            courseService.deleteCourse(courseId);
-        } catch (Exception ex) {
-            log.error("Error in deleteCourse: " + ex.getMessage(), ex);
-        }
+    /**
+     * DELETE /api/courses/{id}
+     */
+    @DeleteMapping("/{id}")
+    public RespSingleDto<Void> deleteCourse(@PathVariable Long id) {
+        courseService.deleteCourse(new LongIdDto(id));
         return new RespSingleDto<>(null, ErrorContext.readAndClean());
     }
 
-    // ------------------------------------------------------------------------
-    // POST /getCourse  (Retrieve a course by ID via POST)
-    // Note: GET version exists above; this POST remains for compatibility.
-    // ------------------------------------------------------------------------
-    @PostMapping("/getCourse")
-    @ResponseBody
-    public RespSingleDto<CourseDto> getCourse(@RequestBody LongIdDto courseId) {
-        CourseDto res = null;
-        try {
-            res = courseService.getCourse(courseId);
-        } catch (Exception ex) {
-            log.error("Error in POST getCourse: " + ex.getMessage(), ex);
-        }
-        return new RespSingleDto<>(res, ErrorContext.readAndClean());
-    }
-
-    // ------------------------------------------------------------------------
-    // POST /associateTeacherToCourse  (Associate a teacher to a course)
-    // ------------------------------------------------------------------------
-    @PostMapping("/associateTeacherToCourse")
-    @ResponseBody
-    public RespSingleDto<Void> associateTeacherToCourse(@RequestBody CourseTeacherAssocDto assoc) {
-        try {
-            courseService.associateTeacherToCourse(assoc);
-        } catch (Exception ex) {
-            log.error("Error in associateTeacherToCourse: " + ex.getMessage(), ex);
-        }
+    /**
+     * POST /api/courses/{id}/teachers
+     */
+    @PostMapping("/{id}/teachers")
+    public RespSingleDto<Void> addTeacherToCourse(
+            @PathVariable Long id,
+            @RequestBody CourseTeacherAssocDto assoc
+    ) {
+        assoc.setCourseId(id);
+        courseService.associateTeacherToCourse(assoc);
         return new RespSingleDto<>(null, ErrorContext.readAndClean());
     }
 
-    // ------------------------------------------------------------------------
-    // POST /removeTeacherFromCourse  (Remove a teacher from a course)
-    // ------------------------------------------------------------------------
-    @PostMapping("/removeTeacherFromCourse")
-    @ResponseBody
-    public RespSingleDto<Void> removeTeacherFromCourse(@RequestBody CourseTeacherAssocDto assoc) {
-        try {
-            courseService.removeTeacherFromCourse(assoc);
-        } catch (Exception ex) {
-            log.error("Error in removeTeacherFromCourse: " + ex.getMessage(), ex);
-        }
+    /**
+     * DELETE /api/courses/{courseId}/teachers/{teacherId}
+     */
+    @DeleteMapping("/{courseId}/teachers/{teacherId}")
+    public RespSingleDto<Void> removeTeacherFromCourse(
+            @PathVariable Long courseId,
+            @PathVariable Long teacherId
+    ) {
+        CourseTeacherAssocDto assoc = new CourseTeacherAssocDto(courseId, teacherId);
+        courseService.removeTeacherFromCourse(assoc);
         return new RespSingleDto<>(null, ErrorContext.readAndClean());
     }
 }
