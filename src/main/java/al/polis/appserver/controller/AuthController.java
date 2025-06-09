@@ -19,12 +19,18 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto login) {
-        Optional<User> userOpt = userRepo.findByUsername(login.getUsername());
+        String enteredUsername = login.getUsername().trim();
+        String enteredPassword = login.getPassword().trim();
 
-        if (userOpt.isPresent() && userOpt.get().getPassword().equals(login.getPassword())) {
-            return ResponseEntity.ok(new LoginResponseDto("success", userOpt.get().getRole()));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        Optional<User> userOpt = userRepo.findByUsername(enteredUsername);
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (user.getPassword().equals(enteredPassword)) {
+                return ResponseEntity.ok(new LoginResponseDto("success", user.getRole()));
+            }
         }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 }
